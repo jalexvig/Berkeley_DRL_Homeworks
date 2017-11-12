@@ -1,0 +1,1 @@
+python train_pg.py InvertedPendulum-v1 -n 100 -b 5000 -rtg -l 4 --discount 0.99 --learning_rate 0.01 --seed 3
