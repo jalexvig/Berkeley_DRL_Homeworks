@@ -266,9 +266,7 @@ def train_PG(exp_name='',
             steps = 0
             while True:
                 if animate_this_episode:
-                    print('here')
                     env.render()
-                    print('here2')
                     time.sleep(0.05)
                 obs.append(ob)
                 ac = sess.run(sy_ac_sampled_n, feed_dict={sy_ob_no: ob[None]})
