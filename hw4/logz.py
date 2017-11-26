@@ -1,4 +1,5 @@
 import json
+import re
 
 """
 
@@ -81,6 +82,23 @@ def save_params(params):
         out.write(json.dumps(params, separators=(',\n', '\t:\t'), sort_keys=True))
 
 
+def continue_training(dpath):
+
+    dpath_models = osp.join(dpath, 'models')
+
+    data_idx = max(int(re.match('data-(\d+)\.pkl', x).group(1)) for x in os.listdir(dpath_models) if x[:4] == 'data')
+    ckpt_idx = max(int(re.match('data-(\d+)\..*', x).group(1)) for x in os.listdir(dpath_models) if x[:5] == 'model')
+
+    idx = min(data_idx, ckpt_idx)
+
+    fpath_data = osp.join(dpath, 'data-%i.pkl' % idx)
+
+    with open(fpath_data, 'rb') as f:
+        data = pickle.load(f)
+
+    return idx, data
+
+
 def pickle_tf_vars():
     """
     Saves tensorflow variables
@@ -89,6 +107,33 @@ def pickle_tf_vars():
     _dict = {v.name: v.eval() for v in tf.global_variables()}
     with open(osp.join(G.output_dir, "vars.pkl"), 'wb') as f:
         pickle.dump(_dict, f)
+
+
+def save_tf_model(sess, name='model', step=None):
+
+    saver = tf.train.Saver()
+
+    dpath = osp.join(G.output_dir, "models")
+
+    if not osp.exists(dpath):
+        os.makedirs(dpath)
+
+    fpath = osp.join(dpath, name)
+
+    saver.save(sess, fpath, step)
+
+
+def pickle_data(data, step=0):
+
+    dpath = osp.join(G.output_dir, "models")
+
+    if not osp.exists(dpath):
+        os.makedirs(dpath)
+
+    fpath = osp.join(dpath, "data-%i.pkl" % step)
+
+    with open(fpath, 'wb') as f:
+        pickle.dump(data, f)
 
 
 def dump_tabular():
