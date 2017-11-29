@@ -348,8 +348,9 @@ def train_PG(exp_name='',
 
         for path in paths:
             n = path["reward"].shape[0]
-            discounted_rew_seq = gamma ** np.arange(n) * path["reward"]
-            q_path = np.cumsum(discounted_rew_seq[::-1])[::-1]
+            discounts = gamma ** np.arange(n)
+            discounted_rew_seq = discounts * path["reward"]
+            q_path = np.cumsum(discounted_rew_seq[::-1])[::-1] / discounts
 
             if not reward_to_go:
                 q_path = np.repeat(q_path[0], n)
